@@ -1,0 +1,184 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FoodHub — Multi-Restaurant System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="scripts.js" defer></script>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-head">
+    <div class="notif-panel-title">Notifications</div>
+    <span class="notif-mark-all" onclick="markAllRead()">Mark all read</span>
+  </div>
+  <div id="notifList"></div>
+</div>
+
+<!-- ═══════════════════════════ AUTH ═══════════════════════════ -->
+<div id="authScreen">
+  <div class="auth-dots"></div>
+  <div class="auth-box">
+    <div class="auth-left">
+      <div>
+        <div class="auth-logo-row">
+          <div class="auth-logo-mark">🍽️</div>
+          <div>
+            <div class="auth-logo-name">FoodHub</div>
+            <div class="auth-tagline">Multi-Restaurant Platform</div>
+          </div>
+        </div>
+        <div class="auth-headline">Order. Manage.<br>Grow. Together.</div>
+        <div class="auth-desc">A complete platform connecting customers, restaurant owners, and platform administrators — all from one beautifully designed system.</div>
+        <div class="auth-bullets">
+          <div class="auth-bullet"><div class="auth-bullet-dot"></div>Browse menus & place orders in seconds</div>
+          <div class="auth-bullet"><div class="auth-bullet-dot"></div>Real-time order tracking with status log</div>
+          <div class="auth-bullet"><div class="auth-bullet-dot"></div>Seller revenue & top-item analytics</div>
+          <div class="auth-bullet"><div class="auth-bullet-dot"></div>Admin control — users, restaurants, orders</div>
+        </div>
+      </div>
+      <div class="auth-copy">FoodHub © 2024 · Semester Project</div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form-title">Welcome back</div>
+      <div class="auth-form-sub">Sign in to continue to FoodHub</div>
+      <div class="fld">
+        <label>Sign in as</label>
+        <div class="role-grid">
+          <div class="role-opt active" onclick="pickRole('customer',this)">
+            <div class="role-opt-icon">👤</div>
+            <div class="role-opt-label">Customer</div>
+          </div>
+          <div class="role-opt" onclick="pickRole('seller',this)">
+            <div class="role-opt-icon">🏪</div>
+            <div class="role-opt-label">Seller</div>
+          </div>
+          <div class="role-opt" onclick="pickRole('admin',this)">
+            <div class="role-opt-icon">⚙️</div>
+            <div class="role-opt-label">Admin</div>
+          </div>
+        </div>
+      </div>
+      <div class="fld">
+        <label>Email address</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" value="rahul@email.com"/>
+      </div>
+      <div class="fld">
+        <label>Password</label>
+        <input id="authPass" type="password" placeholder="••••••••" value="password123" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn-auth" onclick="doLogin()">Sign In →</button>
+      <div class="auth-demo">
+        <strong>Demo users:</strong><br>
+        Customer: rahul@email.com &nbsp;|&nbsp; Seller: ravi@seller.com &nbsp;|&nbsp; Admin: admin@food.com<br>
+        All passwords: <code>password123</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ APP SHELL ═══════════════════════════ -->
+<div id="appShell">
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-brand-row">
+        <div class="sb-mark">🍽️</div>
+        <div>
+          <div class="sb-name">FoodHub</div>
+          <div class="sb-tag">Management System</div>
+        </div>
+      </div>
+    </div>
+    <div id="sbNav"></div>
+    <div class="sb-footer">
+      <div class="sb-user" onclick="goto('profile')">
+        <div class="sb-avatar" id="sbAvatar">R</div>
+        <div>
+          <div class="sb-uname" id="sbName">Rahul Mehta</div>
+          <div class="sb-urole" id="sbRole">Customer</div>
+        </div>
+      </div>
+      <button class="sb-logout" onclick="doLogout()">← &nbsp;Logout</button>
+    </div>
+  </nav>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topTitle">Home</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topDate"></div>
+        <div class="topbar-notif-btn" id="notifBtn" onclick="toggleNotif()">
+          🔔
+          <div class="notif-badge" id="notifCount">3</div>
+        </div>
+        <div class="topbar-avatar" id="topAvatar" onclick="goto('profile')">R</div>
+      </div>
+    </div>
+    <div class="page-wrap" id="pageWrap"></div>
+  </div>
+</div>
+
+<!-- ADD MENU ITEM MODAL -->
+<div class="overlay" id="addItemOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="addItemTitle">Add Menu Item</div>
+      <button class="modal-x" onclick="closeOverlay('addItemOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="g2">
+        <div class="fld"><label>Item Name</label><input id="mi-name" placeholder="e.g. Butter Chicken"/></div>
+        <div class="fld"><label>Category</label><input id="mi-cat" placeholder="e.g. Main Course"/></div>
+      </div>
+      <div class="fld"><label>Description</label><textarea id="mi-desc" rows="2" placeholder="Short description..."></textarea></div>
+      <div class="g2">
+        <div class="fld"><label>Price (₹)</label><input id="mi-price" type="number" placeholder="0"/></div>
+        <div class="fld"><label>Stock Qty</label><input id="mi-stock" type="number" placeholder="0"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('addItemOverlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMenuItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADDRESS MODAL -->
+<div class="overlay" id="addrOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Delivery Address</div>
+      <button class="modal-x" onclick="closeOverlay('addrOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="g2">
+        <div class="fld"><label>Full Name</label><input id="addr-name" value="Rahul Mehta"/></div>
+        <div class="fld"><label>Phone</label><input id="addr-phone" value="9876543210"/></div>
+      </div>
+      <div class="fld"><label>Street Address</label><input id="addr-street" value="42, 3rd Cross Street, Anna Nagar"/></div>
+      <div class="g2">
+        <div class="fld"><label>City</label><input id="addr-city" value="Chennai"/></div>
+        <div class="fld"><label>Pincode</label><input id="addr-pin" value="600040"/></div>
+      </div>
+      <div class="fld"><label>Delivery Instructions (optional)</label><textarea id="addr-note" rows="2" placeholder="e.g. Ring the bell twice..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('addrOverlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddress()">Save Address</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
